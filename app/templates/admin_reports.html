@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 class="title">Admin Review</h1>
+<div class="tabs is-boxed">
+  <ul>
+    <li class="{{ 'is-active' if status == 'pending' else '' }}"><a href="/admin/reports?status=pending">Pending</a></li>
+    <li class="{{ 'is-active' if status == 'approved' else '' }}"><a href="/admin/reports?status=approved">Approved</a></li>
+    <li class="{{ 'is-active' if status == 'rejected' else '' }}"><a href="/admin/reports?status=rejected">Rejected</a></li>
+  </ul>
+  </div>
+{% if items|length == 0 %}
+  <p>No reports.</p>
+{% else %}
+  <form id="batch-form" method="post" action="/admin/reports/batch" style="margin-bottom:1rem;">
+    <input type="hidden" name="redirect_status" value="{{ status }}" />
+    <div class="field has-addons">
+      <div class="control is-expanded">
+        <input class="input" type="text" name="note" placeholder="Batch note (optional)" />
+      </div>
+      {% if status == 'pending' %}
+        <div class="control"><button class="button is-success" name="action" value="approve" type="submit">Approve Selected</button></div>
+        <div class="control"><button class="button is-danger" name="action" value="reject" type="submit">Reject Selected</button></div>
+      {% elif status == 'approved' %}
+        <div class="control"><button class="button is-warning" name="action" value="revoke" type="submit">Revoke Selected</button></div>
+      {% elif status == 'rejected' %}
+        <div class="control"><button class="button is-link" name="action" value="pending" type="submit">Pending Selected</button></div>
+        <div class="control"><button class="button is-danger" name="action" value="delete" type="submit" onclick="return confirm('Delete selected permanently?');">Delete Selected</button></div>
+      {% endif %}
+    </div>
+  </form>
+  <label class="checkbox" style="margin-bottom:.5rem; display:inline-block;">
+    <input type="checkbox" id="toggle-all" /> Select All
+  </label>
+  {% for it in items %}
+    <div class="box">
+      <label class="checkbox" style="float:right;">
+        <input type="checkbox" name="ids" value="{{ it.id }}" form="batch-form" />
+      </label>
+      <h2 class="title is-5"><a href="/report/{{ it.id }}" target="_blank">{{ it.title }}</a> <span class="tag is-light">{{ it.species_name }}</span></h2>
+      <p class="is-size-7 has-text-grey">{{ it.created_at.strftime('%Y-%m-%d %H:%M') }} UTC</p>
+      {% if it.description %}<p class="content">{{ it.description[:200] }}{% if it.description|length > 200 %}...{% endif %}</p>{% endif %}
+      {% if status == 'pending' %}
+        <div class="buttons">
+          <form method="post" action="/admin/reports/{{ it.id }}/review" style="display:inline-block;">
+            <div class="field has-addons">
+              <div class="control is-expanded">
+                <input class="input" type="text" name="note" placeholder="Review note (optional)" />
+              </div>
+              <div class="control">
+                <button class="button is-success" name="action" value="approve" type="submit">Approve</button>
+              </div>
+              <div class="control">
+                <button class="button is-danger" name="action" value="reject" type="submit">Reject</button>
+              </div>
+            </div>
+          </form>
+          <a class="button is-warning" href="/admin/reports/{{ it.id }}/edit">Edit</a>
+        </div>
+      {% elif status == 'approved' %}
+        <form method="post" action="/admin/reports/{{ it.id }}/review">
+          <div class="field has-addons">
+            <div class="control is-expanded">
+              <input class="input" type="text" name="note" placeholder="Review note (optional)" />
+            </div>
+            <div class="control">
+              <button class="button is-warning" name="action" value="revoke" type="submit">Revoke</button>
+            </div>
+          </div>
+        </form>
+      {% elif status == 'rejected' %}
+        <div class="buttons">
+          <form method="post" action="/admin/reports/{{ it.id }}/review" style="display:inline-block;">
+            <div class="field has-addons">
+              <div class="control is-expanded">
+                <input class="input" type="text" name="note" placeholder="Review note (optional)" />
+              </div>
+              <div class="control">
+                <button class="button is-link" name="action" value="pending" type="submit">Pending</button>
+              </div>
+            </div>
+          </form>
+          <form method="post" action="/admin/reports/{{ it.id }}/delete" onsubmit="return confirm('Delete permanently?');" style="display:inline-block;">
+            <button class="button is-danger" type="submit">Delete</button>
+          </form>
+        </div>
+      {% endif %}
+    </div>
+    {% endfor %}
+  <script>
+    const toggleAll = document.getElementById('toggle-all');
+    if (toggleAll){
+      toggleAll.addEventListener('change', function(){
+        document.querySelectorAll('input[name="ids"]').forEach(cb => cb.checked = toggleAll.checked);
+      })
+    }
+  </script>
+{% endif %}
+{% endblock %}

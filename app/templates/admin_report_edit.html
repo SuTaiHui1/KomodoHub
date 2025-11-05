@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 class="title">Edit Report</h1>
+<form method="post" action="/admin/reports/{{ item.id }}/edit" enctype="multipart/form-data" style="max-width:640px;">
+  <div class="field">
+    <label class="label">Title</label>
+    <div class="control"><input class="input" type="text" name="title" value="{{ item.title }}" required /></div>
+  </div>
+  <div class="field">
+    <label class="label">Species Name</label>
+    <div class="control"><input class="input" type="text" name="species_name" value="{{ item.species_name }}" required /></div>
+  </div>
+  <div class="field">
+    <label class="label">Description</label>
+    <div class="control"><textarea class="textarea" name="description">{{ item.description or '' }}</textarea></div>
+  </div>
+  <div class="field">
+    <label class="label">Location (text)</label>
+    <div class="control"><input class="input" type="text" name="location_text" value="{{ item.location_text or '' }}" /></div>
+  </div>
+  {% if photos and photos|length > 0 %}
+  <div class="field">
+    <label class="label">Existing Photos</label>
+    <div class="control">
+      {% for p in photos %}
+        <label class="checkbox" style="display:inline-flex; align-items:center; margin-right:1rem;">
+          <input type="checkbox" name="delete_photos" value="{{ p }}" style="margin-right:.35rem;" />
+          <img class="thumb" src="/media/{{ p }}" title="{{ p }}" />
+          <span class="tag is-light" style="margin-left:.25rem;">Delete</span>
+        </label>
+      {% endfor %}
+    </div>
+    <p class="help is-danger">Select photos to delete; changes apply on Save.</p>
+  </div>
+  {% endif %}
+  <div class="field">
+    <label class="label">Add Photos (up to 3, jpeg/png ≤ 5MB)</label>
+    <div class="control">
+      <input class="input" type="file" name="photo1" accept="image/*" />
+      <input class="input" type="file" name="photo2" accept="image/*" />
+      <input class="input" type="file" name="photo3" accept="image/*" />
+    </div>
+  </div>
+  <div class="field is-grouped">
+    <div class="control"><button class="button is-link" type="submit">Save</button></div>
+    <div class="control"><a class="button is-light" href="/admin/reports?status=pending">Cancel</a></div>
+  </div>
+</form>
+{% endblock %}

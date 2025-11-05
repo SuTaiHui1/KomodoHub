@@ -1,0 +1,193 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 class="title">New Species Report</h1>
+<form id="new-report-form" method="post" action="/reports" enctype="multipart/form-data" style="max-width:640px;">
+  <div class="field">
+    <label class="label">Title</label>
+    <div class="control"><input class="input" type="text" name="title" required value="{{ title or '' }}" /></div>
+  </div>
+  <div class="field">
+    <label class="label">Species Name</label>
+    <div class="field has-addons">
+      <div class="control is-expanded"><input id="species-input" class="input" type="text" name="species_name" required value="{{ species_name or '' }}" /></div>
+      <div class="control"><button class="button is-light" type="button" id="btn-tax-lookup">Auto-fill Taxonomy</button></div>
+    </div>
+  </div>
+  <div class="field">
+    <label class="label">Taxonomy (Phylum - Class - Order - Family - Genus)</label>
+    <div class="columns is-multiline">
+      <div class="column is-one-third">
+        <div class="select is-fullwidth">
+          <select id="tax-phylum" name="phylum"></select>
+        </div>
+      </div>
+      <div class="column is-one-third">
+        <div class="select is-fullwidth">
+          <select id="tax-class" name="class_name"></select>
+        </div>
+      </div>
+      <div class="column is-one-third">
+        <div class="select is-fullwidth">
+          <select id="tax-order" name="order_name"></select>
+        </div>
+      </div>
+      <div class="column is-one-third">
+        <div class="select is-fullwidth">
+          <select id="tax-family" name="family"></select>
+        </div>
+      </div>
+      <div class="column is-one-third">
+        <div class="select is-fullwidth">
+          <select id="tax-genus" name="genus"></select>
+        </div>
+      </div>
+    </div>
+    <p class="help">Each level supports selecting Unknown.</p>
+  </div>
+  <div class="field">
+    <label class="label">Description</label>
+    <div class="control"><textarea class="textarea" name="description">{{ description or '' }}</textarea></div>
+  </div>
+  <div class="field">
+    <label class="label">Location (text)</label>
+    <div class="control"><input class="input" type="text" name="location_text" value="{{ location_text or '' }}" /></div>
+  </div>
+  <div class="field">
+    <label class="label">Photos (up to 3, jpeg/png, max 5MB each)</label>
+    <div class="control">
+      <div class="field has-addons">
+        <div class="control is-expanded"><input id="photo1" class="input" type="file" name="photo1" accept="image/*" /></div>
+        <div class="control"><button class="button is-light" type="button" onclick="clearFile('photo1','prev1')">Clear</button></div>
+      </div>
+      <div class="block"><img id="prev1" class="thumb" style="display:none" /></div>
+
+      <div class="field has-addons">
+        <div class="control is-expanded"><input id="photo2" class="input" type="file" name="photo2" accept="image/*" /></div>
+        <div class="control"><button class="button is-light" type="button" onclick="clearFile('photo2','prev2')">Clear</button></div>
+      </div>
+      <div class="block"><img id="prev2" class="thumb" style="display:none" /></div>
+
+      <div class="field has-addons">
+        <div class="control is-expanded"><input id="photo3" class="input" type="file" name="photo3" accept="image/*" /></div>
+        <div class="control"><button class="button is-light" type="button" onclick="clearFile('photo3','prev3')">Clear</button></div>
+      </div>
+      <div class="block"><img id="prev3" class="thumb" style="display:none" /></div>
+    </div>
+  </div>
+  <div class="field">
+    <button class="button is-link" type="submit">Submit</button>
+  </div>
+</form>
+<script>
+  let TAX = null;
+
+  function fillSelect(sel, options, selected){
+    sel.innerHTML = '';
+    const unk = document.createElement('option');
+    unk.value = '';
+    unk.textContent = 'Unknown';
+    sel.appendChild(unk);
+    (options||[]).forEach(o=>{
+      const opt = document.createElement('option');
+      opt.value = o;
+      opt.textContent = o;
+      if(selected && selected === o) opt.selected = true;
+      sel.appendChild(opt);
+    })
+  }
+  const selP = document.getElementById('tax-phylum');
+  const selC = document.getElementById('tax-class');
+  const selO = document.getElementById('tax-order');
+  const selF = document.getElementById('tax-family');
+  const selG = document.getElementById('tax-genus');
+  function initTaxonomy(){
+    fetch('/api/taxonomy').then(r=>r.json()).then(data=>{ TAX = data; fillSelect(selP, Object.keys(TAX)); updateClass(); }).catch(()=>{ TAX = {}; });
+  }
+  function updateClass(){
+    const p = selP.value; const cls = (TAX && p) ? Object.keys(TAX[p]||{}) : [];
+    fillSelect(selC, cls); updateOrder();
+  }
+  function updateOrder(){
+    const p = selP.value, c = selC.value; const ord = (TAX && p && c) ? Object.keys((TAX[p]||{})[c]||{}) : [];
+    fillSelect(selO, ord); updateFamily();
+  }
+  function updateFamily(){
+    const p = selP.value, c = selC.value, o = selO.value; const fam = (TAX && p && c && o) ? Object.keys(((TAX[p]||{})[c]||{})[o]||{}) : [];
+    fillSelect(selF, fam); updateGenus();
+  }
+  function updateGenus(){
+    const p = selP.value, c = selC.value, o = selO.value, f = selF.value; const gen = (TAX && p && c && o && f) ? (((TAX[p]||{})[c]||{})[o]||{})[f]||[] : [];
+    fillSelect(selG, gen);
+  }
+  selP.addEventListener('change', updateClass);
+  selC.addEventListener('change', updateOrder);
+  selO.addEventListener('change', updateFamily);
+  selF.addEventListener('change', updateGenus);
+  initTaxonomy();
+
+  // Auto-fill by species lookup via Wikidata
+  function ensureOption(sel, val){ if(!val) return; const exists=[...sel.options].some(o=>o.value===val); if(!exists){ const o=document.createElement('option'); o.value=val; o.textContent=val; sel.appendChild(o);} }
+  document.getElementById('btn-tax-lookup').addEventListener('click', function(){
+    const name = (document.getElementById('species-input').value||'').trim();
+    if(!name){ alert('Please enter a species scientific name first'); return; }
+    fetch('/api/taxonomy/lookup?name='+encodeURIComponent(name)).then(async r=>({ok:r.ok, status:r.status, data: await r.json()})).then(({ok,status,data})=>{
+      if(!ok){
+        if(status===422 && data && data.error==='phylum_not_allowed'){
+          alert('This species is not in allowed phyla (Chordata/Arthropoda/Mollusca/Cnidaria/Echinodermata).');
+          return;
+        }
+        alert('Could not find taxonomy for this species');
+        return;
+      }
+      
+      const {phylum, class_name, order_name, family, genus} = data;
+      // set selects; add options if TAX中不存在
+      if(phylum){ ensureOption(selP, phylum); selP.value = phylum; updateClass(); }
+      if(class_name){ ensureOption(selC, class_name); selC.value = class_name; updateOrder(); }
+      if(order_name){ ensureOption(selO, order_name); selO.value = order_name; updateFamily(); }
+      if(family){ ensureOption(selF, family); selF.value = family; updateGenus(); }
+      if(genus){ ensureOption(selG, genus); selG.value = genus; }
+    }).catch(()=>{ alert('Lookup failed, please try again later'); });
+  });
+
+  function clearFile(inputId, imgId){
+    const inp = document.getElementById(inputId);
+    const img = document.getElementById(imgId);
+    if(!inp) return;
+    inp.value = '';
+    if(img){ img.style.display = 'none'; img.src = ''; }
+  }
+  function attachPreview(inputId, imgId){
+    const inp = document.getElementById(inputId);
+    const img = document.getElementById(imgId);
+    if(!inp || !img) return;
+    inp.addEventListener('change', function(){
+      const f = this.files && this.files[0];
+      if(f){
+        const url = URL.createObjectURL(f);
+        img.src = url;
+        img.style.display = 'inline-block';
+      } else {
+        img.style.display = 'none';
+        img.src = '';
+      }
+    });
+  }
+  attachPreview('photo1','prev1');
+  attachPreview('photo2','prev2');
+  attachPreview('photo3','prev3');
+
+  // client-side safeguard: require at least one image
+  const form = document.getElementById('new-report-form');
+  form.addEventListener('submit', function(e){
+    const p1 = document.getElementById('photo1').files.length;
+    const p2 = document.getElementById('photo2').files.length;
+    const p3 = document.getElementById('photo3').files.length;
+    if((p1 + p2 + p3) === 0){
+      e.preventDefault();
+      alert('Please choose at least one image before submitting');
+      return false;
+    }
+  });
+</script>
+{% endblock %}

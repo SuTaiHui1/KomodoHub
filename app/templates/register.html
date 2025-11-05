@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 class="title">Register</h1>
+<form method="post" style="max-width:420px;">
+  <div class="field">
+    <label class="label">Display Name</label>
+    <div class="control">
+      <input class="input" name="display_name" type="text" value="{{ display_name or '' }}" required />
+    </div>
+  </div>
+  <div class="field">
+    <label class="label">Email</label>
+    <div class="control">
+      <input class="input" name="email" type="email" value="{{ email or '' }}" required />
+    </div>
+  </div>
+  <div class="field">
+    <label class="label">Password</label>
+    <div class="control">
+      <input class="input" name="password" type="password" required />
+    </div>
+  </div>
+  <div class="field">
+    <button class="button is-primary" type="submit">Create Account</button>
+  </div>
+  <p class="is-size-7">Have an account? <a href="/login">Login</a></p>
+</form>
+{% endblock %}
+

@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 class="title">Login</h1>
+<form method="post" style="max-width:420px;">
+  <div class="field">
+    <label class="label">Email</label>
+    <div class="control">
+      <input class="input" name="email" type="email" value="{{ email or '' }}" required />
+    </div>
+  </div>
+  <div class="field">
+    <label class="label">Password</label>
+    <div class="control">
+      <input class="input" name="password" type="password" required />
+    </div>
+  </div>
+  <div class="field">
+    <button class="button is-link" type="submit">Login</button>
+  </div>
+  <p class="is-size-7">No account? <a href="/register">Register</a></p>
+</form>
+{% endblock %}
+

@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 class="title">Points Shop</h1>
+{% if error %}
+  <article class="message is-danger"><div class="message-body">{{ error }}</div></article>
+{% endif %}
+<div class="box">Current points: <strong>{{ balance }}</strong></div>
+<div class="columns is-multiline">
+  {% for it in items %}
+  <div class="column is-one-third">
+    <div class="card">
+      <div class="card-content">
+        <p class="title is-6">{{ it.title }}</p>
+        <p class="is-size-7 has-text-grey">{{ it.description }}</p>
+        <p style="margin:.5rem 0;">Cost: <strong>{{ it.points_cost }}</strong> {% if it.stock is not none %}<span class="tag is-light">Stock {{ it.stock }}</span>{% endif %}</p>
+        <form method="post" action="/shop/redeem/{{ it.id }}">
+          {% if it.kind == 'physical' %}
+          <div class="field">
+            <input class="input" type="text" name="shipping_text" placeholder="Shipping info (name/phone/address)" required />
+          </div>
+          {% endif %}
+          <button class="button is-primary" type="submit">Redeem</button>
+        </form>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}

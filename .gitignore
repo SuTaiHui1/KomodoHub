@@ -1,0 +1,16 @@
+__pycache__/
+.pytest_cache/
+.venv/
+*.pyc
+*.pyo
+*.pyd
+*.log
+dist/
+build/
+node_modules/
+desktop/electron/dist/
+data/app.db
+media/uploads/
+*.spec
+.DS_Store
+Thumbs.db

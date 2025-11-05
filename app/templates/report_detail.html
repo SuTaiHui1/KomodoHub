@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block content %}
+  <div class="columns">
+    <div class="column is-8">
+      {% if photos and photos|length > 0 %}
+        <div class="detail-cover"><img src="/media/{{ photos[0] }}" alt="cover" loading="lazy" /></div>
+        {% if photos|length > 1 %}
+          <div class="thumbs-row">
+            {% for p in photos[1:] %}
+              <img class="thumb" src="/media/{{ p }}" />
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% endif %}
+      <h1 class="title">{{ item.title }}</h1>
+      <div class="meta" style="margin:.25rem 0 .5rem 0;">
+        {% if item.reporter %}
+          {% if item.reporter.avatar_url %}
+            <img src="/media/{{ item.reporter.avatar_url }}" alt="avatar" style="width:24px;height:24px;border-radius:50%;object-fit:cover;" />
+          {% else %}
+            <span class="tag is-light" style="border-radius:50%;width:24px;height:24px;display:inline-flex;align-items:center;justify-content:center;">👤</span>
+          {% endif %}
+          <span style="margin-left:.4rem;">{{ item.reporter.display_name }}</span>
+        {% endif %}
+      </div>
+      {% set show_species = (item.species_name | lower) not in (item.title | lower) %}
+      {% if show_species %}
+        <p class="subtitle">{{ item.species_name }}</p>
+      {% endif %}
+      <div class="tags is-compact" style="margin-bottom:.5rem;">
+        {% if item.genus %}<span class="tag is-info is-light">{{ item.genus }}</span>{% endif %}
+        {% if item.family %}<span class="tag is-info is-light">{{ item.family }}</span>{% endif %}
+        {% if item.order_name %}<span class="tag is-light">{{ item.order_name }}</span>{% endif %}
+      </div>
+      {% if item.description %}
+        <div class="content">{{ item.description }}</div>
+      {% endif %}
+    </div>
+    <div class="column is-4">
+      <div class="box">
+        <p class="has-text-grey">Info</p>
+        <div class="meta"><span>📍 {{ item.location_text or 'Unknown location' }}</span></div>
+        <div class="meta"><span>🗓 {{ item.created_at.strftime('%Y-%m-%d %H:%M') }} UTC</span></div>
+      </div>
+      {% if item.review_note %}
+      <article class="message is-info">
+        <div class="message-header">Review Note</div>
+        <div class="message-body">{{ item.review_note }}</div>
+      </article>
+      {% endif %}
+    </div>
+  </div>
+{% endblock %}

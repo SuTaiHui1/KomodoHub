@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 class="title">Share</h1>
+<p class="subtitle">{{ item.title }} — {{ item.species_name }}</p>
+<div class="box">
+  <p>Copy the link below to share on your social platforms:</p>
+  <input class="input" type="text" readonly value="{{ share_url }}" onclick="this.select(); document.execCommand('copy');" />
+  <p class="is-size-7 has-text-grey" style="margin-top:.5rem;">Tip: opening this counts toward the "Share" daily quest.</p>
+  <p style="margin-top:1rem;"><a class="button" href="{{ share_url }}" target="_blank">Preview link</a></p>
+  <p style="margin-top:.5rem;"><a class="button is-light" href="/points">Go to Points</a></p>
+</div>
+{% endblock %}

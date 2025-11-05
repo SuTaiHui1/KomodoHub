@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 class="title">My Points</h1>
+<div class="columns">
+  <div class="column is-6">
+    <div class="box">
+      <p>Current points: <strong>{{ balance }}</strong></p>
+      {% if not signed %}
+        <form method="post" action="/points/signin" style="margin-top:.5rem;">
+          <button class="button is-link" type="submit">Daily Check-in +{{ signin_points }}</button>
+        </form>
+      {% else %}
+        <p class="is-size-7 has-text-grey">Checked in today</p>
+      {% endif %}
+    </div>
+    <div class="box">
+      <p class="title is-6">Daily Quests</p>
+      {% for q in quests %}
+        <div class="level">
+          <div class="level-left">
+            <div>
+              <p>{{ q.title }}</p>
+              <p class="is-size-7 has-text-grey">Progress: {{ q.progress }}/{{ q.need }}, reward {{ q.points }} pts</p>
+            </div>
+          </div>
+          <div class="level-right">
+            {% if q.rewarded %}
+              <span class="tag is-success is-light">Claimed</span>
+            {% elif q.done %}
+              <form method="post" action="/points/quests/{{ q.code }}/claim">
+                <button class="button is-small is-primary" type="submit">Claim</button>
+              </form>
+            {% else %}
+              <span class="tag is-light">Incomplete</span>
+            {% endif %}
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+  <div class="column is-6">
+    <div class="box">
+      <p class="title is-6">Recent Point Transactions</p>
+      <table class="table is-fullwidth is-striped is-narrow">
+        <thead>
+          <tr><th>Time</th><th>Delta</th><th>Reason</th></tr>
+        </thead>
+        <tbody>
+          {% for it in recent %}
+          <tr>
+            <td>{{ it.created_at.strftime('%Y-%m-%d %H:%M') }} UTC</td>
+            <td>{% if it.delta >= 0 %}+{% endif %}{{ it.delta }}</td>
+            <td>{{ it.reason }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      <a class="button is-small" href="/shop">Go to Shop</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

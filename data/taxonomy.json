@@ -1,0 +1,51 @@
+{
+  "Chordata": {
+    "Mammalia": {
+      "Carnivora": {
+        "Felidae": ["Panthera", "Felis"],
+        "Canidae": ["Canis", "Vulpes"],
+        "Ursidae": ["Ursus"]
+      },
+      "Primates": {
+        "Hominidae": ["Homo"],
+        "Cercopithecidae": ["Macaca"]
+      },
+      "Artiodactyla": {"Cervidae": ["Cervus"]},
+      "Perissodactyla": {"Equidae": ["Equus"]},
+      "Cetacea": {"Delphinidae": ["Delphinus"], "Balaenopteridae": ["Balaenoptera"]}
+    },
+    "Aves": {
+      "Passeriformes": {"Corvidae": ["Corvus", "Pica"], "Paridae": ["Parus"], "Sittidae": ["Sitta"]},
+      "Accipitriformes": {"Accipitridae": ["Aquila", "Buteo"]},
+      "Strigiformes": {"Strigidae": ["Strix"], "Tytonidae": ["Tyto"]},
+      "Anseriformes": {"Anatidae": ["Anas"]}
+    },
+    "Reptilia": {
+      "Squamata": {"Varanidae": ["Varanus"], "Pythonidae": ["Python"]},
+      "Testudines": {"Cheloniidae": ["Chelonia"]},
+      "Crocodylia": {"Crocodylidae": ["Crocodylus"]}
+    },
+    "Amphibia": {
+      "Anura": {"Hylidae": ["Hyla"], "Ranidae": ["Rana"]},
+      "Caudata": {"Salamandridae": ["Salamandra"]}
+    },
+    "Actinopterygii": {"Perciformes": {"Cichlidae": ["Oreochromis"]}}
+  },
+  "Arthropoda": {
+    "Insecta": {
+      "Lepidoptera": {"Papilionidae": ["Papilio"], "Nymphalidae": ["Vanessa"]},
+      "Coleoptera": {"Carabidae": ["Carabus"], "Coccinellidae": ["Coccinella"]},
+      "Hymenoptera": {"Apidae": ["Apis", "Bombus"]}
+    },
+    "Arachnida": {"Araneae": {"Salticidae": ["Salticus"]}},
+    "Crustacea": {"Decapoda": {"Portunidae": ["Portunus"]}}
+  },
+  "Mollusca": {
+    "Gastropoda": {"Stylommatophora": {"Helicidae": ["Helix"]}},
+    "Cephalopoda": {"Octopoda": {"Octopodidae": ["Octopus"]}},
+    "Bivalvia": {"Venerida": {"Veneridae": ["Ruditapes"]}}
+  },
+  
+  "Cnidaria": {"Anthozoa": {"Scleractinia": {"Acroporidae": ["Acropora"]}}},
+  "Echinodermata": {"Asteroidea": {"Valvatida": {"Asteriidae": ["Asterias"]}}, "Echinoidea": {"Camarodonta": {"Echinidae": ["Paracentrotus"]}}}
+}

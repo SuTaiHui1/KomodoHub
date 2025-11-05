@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="section">
+  <h1 class="title">Public Reports</h1>
+  <form id="filter-form" method="get" class="box" style="margin-bottom:1rem;">
+    <div class="field">
+      <label class="label">Search</label>
+      <div class="control">
+        <input class="input" type="text" name="q" placeholder="Search title or species" value="{{ q }}" />
+      </div>
+    </div>
+    <div class="columns is-multiline">
+      <div class="column is-one-fifth"><div class="select is-fullwidth"><select id="f-phylum" name="phylum"></select></div></div>
+      <div class="column is-one-fifth"><div class="select is-fullwidth"><select id="f-class" name="class_name"></select></div></div>
+      <div class="column is-one-fifth"><div class="select is-fullwidth"><select id="f-order" name="order_name"></select></div></div>
+      <div class="column is-one-fifth"><div class="select is-fullwidth"><select id="f-family" name="family"></select></div></div>
+      <div class="column is-one-fifth"><div class="select is-fullwidth"><select id="f-genus" name="genus"></select></div></div>
+    </div>
+    <div class="field is-grouped">
+      <div class="control"><button class="button is-link" type="submit">Apply</button></div>
+      <div class="control"><a class="button is-light" href="/">Reset</a></div>
+    </div>
+  </form>
+
+  {% if items|length == 0 %}
+    <p>No approved reports yet.</p>
+  {% else %}
+    <div class="columns is-multiline">
+      {% for it in items %}
+      <div class="column is-one-third">
+        <a class="card-link" href="/report/{{ it.id }}">
+          <div class="card">
+            <div class="card-image" style="padding:.75rem .75rem 0 .75rem;">
+              {% set photos = photos_map.get(it.id) %}
+              {% if photos and photos|length > 0 %}
+                <div class="card-cover"><img src="/media/{{ photos[0] }}" alt="cover" loading="lazy" /></div>
+              {% else %}
+                <div class="card-cover"><span class="tag is-light">No image</span></div>
+              {% endif %}
+            </div>
+            <div class="card-content">
+              <p class="title is-5">{{ it.title | highlight(q) }}</p>
+              {% set show_species = (it.species_name | lower) not in (it.title | lower) %}
+              {% if show_species %}
+                <p class="subtitle is-6">{{ it.species_name | highlight(q) }}</p>
+              {% endif %}
+              <div class="tags is-compact" style="margin-bottom:.25rem;">
+                {% if it.genus %}<span class="tag is-info is-light">{{ it.genus }}</span>{% endif %}
+                {% if it.family %}<span class="tag is-info is-light">{{ it.family }}</span>{% endif %}
+                {% if it.order_name %}<span class="tag is-light">{{ it.order_name }}</span>{% endif %}
+              </div>
+              {% if q and it.description %}
+                <div class="content is-small">{{ it.description | excerpt(q) }}</div>
+              {% endif %}
+              <div class="meta">
+                <span>📍 {{ it.location_text or 'Unknown location' }}</span>
+                <span>• {{ it.created_at.strftime('%Y-%m-%d') }}</span>
+              </div>
+              <div class="meta" style="margin-top:.25rem;">
+                {% if it.reporter %}
+                  {% if it.reporter.avatar_url %}
+                    <img src="/media/{{ it.reporter.avatar_url }}" alt="avatar" style="width:20px;height:20px;border-radius:50%;object-fit:cover;" />
+                  {% else %}
+                    <span class="tag is-light" style="border-radius:50%;width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;">👤</span>
+                  {% endif %}
+                  <span style="margin-left:.35rem;">{{ it.reporter.display_name }}</span>
+                {% endif %}
+              </div>
+              <div style="margin-top:.5rem;">
+                <a class="button is-small is-primary" href="/donate/{{ it.id }}">Sponsor this species</a>
+              </div>
+            </div>
+          </div>
+        </a>
+      </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+</section>
+<script>
+  let TAX = null;
+  function fillSelect(sel, options, selected){
+    sel.innerHTML = '';
+    const unk = document.createElement('option');
+    unk.value = '';
+    unk.textContent = 'Unknown';
+    sel.appendChild(unk);
+    (options||[]).forEach(o=>{
+      const opt = document.createElement('option');
+      opt.value = o; opt.textContent = o; if(selected===o) opt.selected = true; sel.appendChild(opt);
+    })
+  }
+  const fp = document.getElementById('f-phylum');
+  const fc = document.getElementById('f-class');
+  const fo = document.getElementById('f-order');
+  const ff = document.getElementById('f-family');
+  const fg = document.getElementById('f-genus');
+  const selVals = { phylum: "{{ tax.phylum }}", class_name: "{{ tax.class_name }}", order_name: "{{ tax.order_name }}", family: "{{ tax.family }}", genus: "{{ tax.genus }}" };
+  function initTaxonomy(){ fetch('/api/taxonomy').then(r=>r.json()).then(data=>{ TAX=data; fillSelect(fp, Object.keys(TAX), selVals.phylum); updC(); }).catch(()=>{}); }
+  function updC(){ const p=fp.value; fillSelect(fc, (TAX&&p)?Object.keys(TAX[p]||{}):[], selVals.class_name); updO(); }
+  function updO(){ const p=fp.value,c=fc.value; fillSelect(fo,(TAX&&p&&c)?Object.keys((TAX[p]||{})[c]||{}):[], selVals.order_name); updF(); }
+  function updF(){ const p=fp.value,c=fc.value,o=fo.value; fillSelect(ff,(TAX&&p&&c&&o)?Object.keys(((TAX[p]||{})[c]||{})[o]||{}):[], selVals.family); updG(); }
+  function updG(){ const p=fp.value,c=fc.value,o=fo.value,f=ff.value; fillSelect(fg,(TAX&&p&&c&&o&&f)?(((TAX[p]||{})[c]||{})[o]||{})[f]||[]:[], selVals.genus); }
+  fp.addEventListener('change', ()=>{ selVals.class_name=''; selVals.order_name=''; selVals.family=''; selVals.genus=''; updC(); });
+  fc.addEventListener('change', ()=>{ selVals.order_name=''; selVals.family=''; selVals.genus=''; updO(); });
+  fo.addEventListener('change', ()=>{ selVals.family=''; selVals.genus=''; updF(); });
+  ff.addEventListener('change', ()=>{ selVals.genus=''; updG(); });
+  initTaxonomy();
+</script>
+{% endblock %}

@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 class="title">Profile</h1>
+{% if error %}
+  <article class="message is-danger"><div class="message-body">{{ error }}</div></article>
+{% endif %}
+<div class="columns">
+  <div class="column is-7">
+    <form method="post" action="/profile" enctype="multipart/form-data">
+      <div class="field">
+        <label class="label">Avatar</label>
+        <div class="control">
+          {% if user.avatar_url %}
+            <img src="/media/{{ user.avatar_url }}" style="height:80px;width:80px;border-radius:50%;object-fit:cover;" />
+          {% endif %}
+          <input class="input" type="file" name="avatar" accept="image/*" />
+        </div>
+      </div>
+      <div class="field">
+        <label class="label">Display Name</label>
+        <input class="input" type="text" name="display_name" value="{{ user.display_name }}" required />
+      </div>
+      <div class="field">
+        <label class="label">Gender</label>
+        <div class="select is-fullwidth">
+          <select name="gender">
+            <option value="">Prefer not to say</option>
+            <option value="male" {% if user.gender=='male' %}selected{% endif %}>Male</option>
+            <option value="female" {% if user.gender=='female' %}selected{% endif %}>Female</option>
+            <option value="other" {% if user.gender=='other' %}selected{% endif %}>Other</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label class="label">City</label>
+        <input class="input" type="text" name="city" value="{{ user.city or '' }}" />
+      </div>
+      <div class="field">
+        <label class="label">Bio</label>
+        <textarea class="textarea" name="bio" rows="3">{{ user.bio or '' }}</textarea>
+      </div>
+      <div class="field">
+        <label class="label">Theme</label>
+        <div class="select is-fullwidth">
+          <select name="theme">
+            <option value="light" {% if user.theme=='light' %}selected{% endif %}>Light</option>
+            <option value="dark" {% if user.theme=='dark' %}selected{% endif %}>Dark</option>
+            <option value="system" {% if user.theme=='system' %}selected{% endif %}>System</option>
+          </select>
+        </div>
+      </div>
+      
+
+      <div class="field">
+        <label class="label">Favorite Animals (JSON, up to 10)</label>
+        <textarea class="textarea" name="favorites_json" rows="4" placeholder='Example: [{"genus":"Panthera","species":"Panthera tigris"}]'>{{ favs_json }}</textarea>
+        <p class="is-size-7 has-text-grey">Tip: you can also add from "My Reports" with one click.</p>
+      </div>
+
+      <div class="field is-grouped">
+        <button class="button is-primary" type="submit">Save</button>
+      </div>
+    </form>
+  </div>
+  <div class="column is-5">
+    <div class="box">
+      <p class="title is-6">Achievements</p>
+      <ul>
+        <li>Total reports: {{ stats.total_reports }}</li>
+        <li>Approved reports: {{ stats.approved_reports }}</li>
+        <li>Total donations: ¥{{ '%.2f'|format(stats.donations_sum) }}</li>
+        <li>Current points: {{ stats.points }}</li>
+      </ul>
+    </div>
+  </div>
+</div>
+{% endblock %}

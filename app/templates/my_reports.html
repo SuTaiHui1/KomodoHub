@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 class="title">My Reports</h1>
+{% if items|length == 0 %}
+  <p>You have not submitted any reports yet. <a href="/reports/new">Create one</a>.</p>
+{% else %}
+  <table class="table is-fullwidth">
+    <thead>
+      <tr><th>Title</th><th>Species</th><th>Status</th><th>Created</th><th>Fav</th></tr>
+    </thead>
+    <tbody>
+      {% for it in items %}
+      <tr>
+        <td><a href="/report/{{ it.id }}">{{ it.title }}</a></td>
+        <td>{{ it.species_name }}</td>
+        <td>{{ it.status }}</td>
+        <td>{{ it.created_at.strftime('%Y-%m-%d %H:%M') }} UTC</td>
+        <td>
+          <form method="post" action="/profile/favorites/add/{{ it.id }}">
+            <button class="button is-small" type="submit">Add to Favorites</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endif %}
+{% endblock %}

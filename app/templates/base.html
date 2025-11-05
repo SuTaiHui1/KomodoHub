@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Komodo Hub Lite</title>
+    <link href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css" rel="stylesheet" />
+    <style>
+      :root {
+        --brand-ink: #114b5f;
+        --brand-accent: #1f7a8c;
+        --brand-bg: #f6f7f9;
+        --brand-ok: #2e7d32;
+        --brand-warn: #d2691e;
+      }
+      .container { margin-top: 2rem; }
+      .hero.is-primary { background: var(--brand-ink); }
+      .navbar { background: var(--brand-ink); }
+      .navbar .navbar-item, .navbar .navbar-brand { color: #fff; }
+      .navbar a.navbar-item:hover { background: rgba(255,255,255,0.1); }
+      .thumb { max-height: 120px; margin-right: .5rem; border-radius: 6px; }
+      .card-link { display:block; color:inherit; text-decoration:none; }
+      .card-cover { height: 180px; border-radius: 8px; overflow: hidden; background: var(--brand-bg); display:flex; align-items:center; justify-content:center; }
+      .card-cover img { width:100%; height:100%; object-fit: contain; object-position: center center; background:#f6f7f9; }
+      .meta { font-size: 12px; color:#6b7280; display:flex; gap:.75rem; align-items:center; margin-top:.25rem; }
+      .tags.is-compact .tag { margin-right:.25rem; margin-bottom:.25rem; }
+      .detail-cover { width:100%; max-height: 70vh; border-radius: 10px; overflow:hidden; margin-bottom:1rem; background:var(--brand-bg); display:flex; align-items:center; justify-content:center; }
+      .detail-cover img { width:100%; height:100%; object-fit: contain; object-position: center center; }
+      .thumbs-row img { max-height: 90px; margin-right:.5rem; border-radius:6px; }
+    </style>
+  </head>
+  <body>
+    <nav class="navbar" role="navigation">
+      <div class="navbar-brand">
+        <a class="navbar-item" href="/">Komodo Hub</a>
+      </div>
+      <div class="navbar-menu is-active">
+        <div class="navbar-start">
+          <a class="navbar-item" href="/">Public</a>
+          {% if user %}
+          <a class="navbar-item" href="/profile">Profile</a>
+          <a class="navbar-item" href="/my/reports">My Reports</a>
+          <a class="navbar-item" href="/reports/new">New Report</a>
+          <a class="navbar-item" href="/points">My Points</a>
+          <a class="navbar-item" href="/shop">Shop</a>
+          {% if user.is_admin %}
+          <a class="navbar-item" href="/admin/reports">Admin Review</a>
+          {% endif %}
+          {% endif %}
+        </div>
+        <div class="navbar-end">
+          {% if user %}
+          <div class="navbar-item">Hi, {{ user.display_name }}</div>
+          <a class="navbar-item" href="/logout">Logout</a>
+          {% else %}
+          <a class="navbar-item" href="/login">Login</a>
+          <a class="navbar-item" href="/register">Register</a>
+          {% endif %}
+        </div>
+      </div>
+    </nav>
+    <div class="container">
+      {% if error %}
+      <div class="notification is-danger">{{ error }}</div>
+      {% endif %}
+      {% block content %}{% endblock %}
+    </div>
+  </body>
+  </html>

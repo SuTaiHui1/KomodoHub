@@ -1,0 +1,38 @@
+{
+  "name": "komodo-hub-desktop",
+  "version": "0.1.0",
+  "private": true,
+  "main": "main.js",
+  "description": "Komodo Hub desktop wrapper (Electron) for the FastAPI app",
+  "author": "Komodo Hub Team",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder --win --x64"
+  },
+  "devDependencies": {
+    "electron": "28.2.0",
+    "electron-builder": "24.13.3"
+  },
+  "build": {
+    "appId": "org.komodohub.desktop",
+    "productName": "Komodo Hub",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "icon.png"
+    ],
+    "extraResources": [
+      {
+        "from": "KomodoHubBackend.exe",
+        "to": "KomodoHubBackend.exe"
+      }
+    ],
+    "win": {
+      "target": ["nsis"],
+      "artifactName": "KomodoHub-Setup-${version}.exe"
+    }
+  }
+}

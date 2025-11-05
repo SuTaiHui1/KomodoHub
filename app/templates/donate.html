@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="columns">
+  <div class="column is-7">
+    <h1 class="title">Sponsor This Species</h1>
+    <p class="subtitle">{{ item.title }} — {{ item.species_name }}</p>
+    {% if success %}
+      <article class="message is-success">
+        <div class="message-header">Thank you for your support!</div>
+        <div class="message-body">Your donation has been recorded and points awarded. Current points: {{ points }}</div>
+      </article>
+    {% endif %}
+    {% if error %}
+      <article class="message is-danger">
+        <div class="message-body">{{ error }}</div>
+      </article>
+    {% endif %}
+    <div class="box">
+      <p class="has-text-grey">Scan to pay with Alipay (placeholder)</p>
+      <div style="width:260px;height:260px;border:1px dashed #cbd5e1;border-radius:8px;display:flex;align-items:center;justify-content:center;margin:1rem 0;">
+        <div class="has-text-grey">Merchant QR Placeholder</div>
+      </div>
+      <form method="post" action="/donate/{{ item.id }}" class="field has-addons" style="max-width:420px;">
+        <div class="control is-expanded">
+          <input class="input" type="number" name="amount" step="0.01" min="0.01" placeholder="Enter amount paid (CNY)" required />
+        </div>
+        <div class="control">
+          <button class="button is-link" type="submit">I have paid</button>
+        </div>
+      </form>
+      <p class="is-size-7 has-text-grey">Note: Demo flow (no real payment). Points awarded at 1 CNY = {{ points_per_cny }} points.</p>
+    </div>
+  </div>
+  <div class="column is-5">
+    <div class="card">
+      <div class="card-content">
+        <p class="title is-6">About this species</p>
+        <p class="is-size-7 has-text-grey">{{ item.description or 'No description yet' }}</p>
+        <div class="tags" style="margin-top:.5rem;">
+          {% if item.genus %}<span class="tag is-info is-light">{{ item.genus }}</span>{% endif %}
+          {% if item.family %}<span class="tag is-info is-light">{{ item.family }}</span>{% endif %}
+          {% if item.order_name %}<span class="tag is-light">{{ item.order_name }}</span>{% endif %}
+        </div>
+      </div>
+    </div>
+    <div class="box" style="margin-top:1rem;">
+      <p>Current points: <strong>{{ points }}</strong></p>
+      <p class="is-size-7 has-text-grey">Please login to earn points and redeem rewards.</p>
+    </div>
+  </div>
+</div>
+{% endblock %}
