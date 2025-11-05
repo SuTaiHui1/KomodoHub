@@ -1,3 +1,12 @@
+Quick Download
+Go to Releases: https://github.com/SuTaiHui1/KomodoHub/releases/latest
+Installer: download KomodoHub-Setup-<version>.exe (recommended)
+Portable: download KomodoHub-Portable.zip, unzip and run Komodo Hub.exe
+Notes
+On first launch, Windows SmartScreen may warn “Unknown Publisher” (unsigned). Click “More info” → “Run anyway”.
+Data is local; uploaded media stored under %LOCALAPPDATA%\KomodoHub\media.
+Admin login (optional): admin@example.com / admin123 
+
 # Komodo Hub — Lite (FastAPI + Jinja2)
 
 Minimal species reporting platform for learning purposes.
